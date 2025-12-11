@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Case Study: Travelido - Travel Package Aggregation Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "lm-green": "#E84393",
+              "lm-green-dark": "#C72C7C",
+              "lm-teal": "#14B8A6",
+              "lm-teal-dark": "#0D9488",
+              "lm-gray": "#7E7E7E",
+              "lm-light": "#FDF2F8",
+              "lm-dark": "#373737",
+              "lm-darker": "#1F1F1F",
+            },
+            fontFamily: {
+              montserrat: ["Montserrat", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+
+      /* Smooth scroll */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #fdf2f8;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #e84393;
+        border-radius: 4px;
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(40px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-40px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(40px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      @keyframes pulse-ring {
+        0% {
+          transform: scale(0.8);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(1.5);
+          opacity: 0;
+        }
+      }
+
+      @keyframes countUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      @keyframes drawLine {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      .animate-fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+      }
+
+      .animate-fade-in-left {
+        animation: fadeInLeft 0.8s ease-out forwards;
+      }
+
+      .animate-fade-in-right {
+        animation: fadeInRight 0.8s ease-out forwards;
+      }
+
+      .animate-scale-in {
+        animation: scaleIn 0.6s ease-out forwards;
+      }
+
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .delay-100 {
+        animation-delay: 0.1s;
+      }
+      .delay-200 {
+        animation-delay: 0.2s;
+      }
+      .delay-300 {
+        animation-delay: 0.3s;
+      }
+      .delay-400 {
+        animation-delay: 0.4s;
+      }
+      .delay-500 {
+        animation-delay: 0.5s;
+      }
+      .delay-600 {
+        animation-delay: 0.6s;
+      }
+      .delay-700 {
+        animation-delay: 0.7s;
+      }
+      .delay-800 {
+        animation-delay: 0.8s;
+      }
+
+      /* Scroll-triggered animations */
+      .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 0.8s ease-out;
+      }
+
+      .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Gradient text */
+      .gradient-text {
+        background: linear-gradient(
+          135deg,
+          #e84393 0%,
+          #c72c7c 50%,
+          #e84393 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* Card hover effects */
+      .card-hover {
+        transition: all 0.3s ease-in-out;
+      }
+      .card-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(232, 67, 147, 0.2);
+      }
+
+      /* Problem card styling */
+      .problem-card {
+        position: relative;
+        overflow: hidden;
+      }
+      .problem-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #14b8a6, #0d9488);
+        transform: scaleY(0);
+        transition: transform 0.3s ease-out;
+      }
+      .problem-card:hover::before {
+        transform: scaleY(1);
+      }
+
+      /* Solution card styling */
+      .solution-card {
+        position: relative;
+        overflow: hidden;
+      }
+      .solution-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #e84393, #c72c7c);
+        transform: scaleY(0);
+        transition: transform 0.3s ease-out;
+      }
+      .solution-card:hover::before {
+        transform: scaleY(1);
+      }
+
+      /* Metric circle */
+      .metric-circle {
+        position: relative;
+      }
+      .metric-circle::after {
+        content: "";
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 2px solid #e84393;
+        animation: pulse-ring 2s ease-out infinite;
+      }
+
+      /* Timeline connector */
+      .timeline-connector {
+        position: relative;
+      }
+      .timeline-connector::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        width: 2px;
+        height: 40px;
+        background: linear-gradient(180deg, #e84393, transparent);
+      }
+
+      /* Floating elements */
+      .float-element {
+        position: absolute;
+        opacity: 0.1;
+        pointer-events: none;
+      }
+
+      /* Progress bar animation */
+      .progress-bar {
+        background: linear-gradient(90deg, #e84393, #c72c7c, #e84393);
+        background-size: 200% 100%;
+        animation: shimmer 2s linear infinite;
+      }
+
+      /* Icon container */
+      .icon-container {
+        transition: all 0.3s ease;
+      }
+      .icon-container:hover {
+        transform: rotate(10deg) scale(1.1);
+      }
+
+      /* Hero pattern */
+      .hero-pattern {
+        background-image: radial-gradient(
+            circle at 20% 50%,
+            rgba(232, 67, 147, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(232, 67, 147, 0.08) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 40% 80%,
+            rgba(20, 184, 166, 0.06) 0%,
+            transparent 40%
+          );
+      }
+
+      /* Stats counter animation */
+      .stat-number {
+        display: inline-block;
+      }
+
+      /* Workflow arrow */
+      .workflow-arrow {
+        position: relative;
+      }
+      .workflow-arrow::after {
+        content: "→";
+        position: absolute;
+        right: -30px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #e84393;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      /* Glowing effect */
+      .glow {
+        box-shadow: 0 0 40px rgba(232, 67, 147, 0.3);
+      }
+
+      /* Section divider */
+      .section-divider {
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #e84393, transparent);
+        border-radius: 2px;
+      }
+
+      /* Before/After comparison */
+      .comparison-card {
+        position: relative;
+        overflow: hidden;
+      }
+      .comparison-card::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #14b8a6, #e84393);
+      }
+    </style>
+  </head>
+  <body class="bg-white text-lm-dark">
+    <!-- Hero Section -->
+    <section class="min-h-screen relative overflow-hidden hero-pattern">
+      <!-- Floating decorative elements -->
+      <div class="float-element animate-float" style="top: 10%; left: 5%">
+        <i class="fas fa-plane text-lm-green text-6xl"></i>
+      </div>
+      <div
+        class="float-element animate-float delay-300"
+        style="top: 20%; right: 10%"
+      >
+        <i class="fas fa-globe-americas text-lm-green text-5xl"></i>
+      </div>
+      <div
+        class="float-element animate-float delay-500"
+        style="bottom: 20%; left: 15%"
+      >
+        <i class="fas fa-suitcase-rolling text-lm-green text-4xl"></i>
+      </div>
+      <div
+        class="float-element animate-float delay-700"
+        style="bottom: 30%; right: 5%"
+      >
+        <i class="fas fa-database text-lm-green text-5xl"></i>
+      </div>
+
+      <div class="container mx-auto px-6 py-12 relative z-10">
+        <!-- Header -->
+        <nav class="flex justify-between items-center mb-16 animate-fade-in-up">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-12 h-12 bg-lm-green rounded-xl flex items-center justify-center"
+            >
+              <i class="fas fa-plane-departure text-white text-xl"></i>
+            </div>
+            <span class="text-xl font-bold text-lm-dark">Case Study</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-lm-gray">
+            <i class="fas fa-calendar-alt text-lm-green"></i>
+            <span>Data Aggregation Platform</span>
+          </div>
+        </nav>
+
+        <!-- Hero Content -->
+        <div class="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+          <div class="space-y-8">
+            <div class="animate-fade-in-up">
+              <span
+                class="inline-flex items-center gap-2 bg-lm-green/10 text-lm-green px-4 py-2 rounded-full text-sm font-medium mb-4"
+              >
+                <i class="fas fa-bolt"></i>
+                Travel & Holiday Aggregation Platform
+              </span>
+            </div>
+
+            <h1
+              class="text-5xl lg:text-6xl font-extrabold leading-tight animate-fade-in-up delay-100"
+            >
+              <span class="gradient-text">Travelido</span>
+              <br />
+              <span class="text-lm-darker"
+                >Multi-Source Travel Package Aggregation</span
+              >
+            </h1>
+
+            <p
+              class="text-xl text-lm-gray leading-relaxed animate-fade-in-up delay-200"
+            >
+              Building a unified platform that scrapes, normalizes, and
+              aggregates travel packages from multiple providers including
+              MakeMyTrip and similar holiday-booking sites. This comprehensive
+              data solution revolutionized how travelers discover and compare
+              holiday packages — transforming fragmented, inconsistent data
+              from dozens of sources into a single, searchable, clean
+              interface.
+            </p>
+
+            <div class="flex flex-wrap gap-4 animate-fade-in-up delay-300">
+              <div
+                class="flex items-center gap-2 bg-lm-light px-4 py-3 rounded-xl"
+              >
+                <i class="fas fa-globe text-lm-green"></i>
+                <span class="text-sm font-medium">Multi-Provider</span>
+              </div>
+              <div
+                class="flex items-center gap-2 bg-lm-light px-4 py-3 rounded-xl"
+              >
+                <i class="fas fa-server text-lm-green"></i>
+                <span class="text-sm font-medium">Data Scraping</span>
+              </div>
+              <div
+                class="flex items-center gap-2 bg-lm-light px-4 py-3 rounded-xl"
+              >
+                <i class="fas fa-search text-lm-green"></i>
+                <span class="text-sm font-medium">Unified Search</span>
+              </div>
+              <div
+                class="flex items-center gap-2 bg-lm-light px-4 py-3 rounded-xl"
+              >
+                <i class="fas fa-sync-alt text-lm-green"></i>
+                <span class="text-sm font-medium">Automated Ingestion</span>
+              </div>
+            </div>
+
+            <a
+              href="#results"
+              class="inline-flex items-center gap-3 bg-lm-green text-white px-8 py-4 rounded-2xl font-semibold hover:bg-lm-green-dark transition-all duration-300 shadow-lg hover:shadow-xl animate-fade-in-up delay-400 group"
+            >
+              <span>View Results</span>
+              <i
+                class="fas fa-arrow-down group-hover:translate-y-1 transition-transform"
+              ></i>
+            </a>
+          </div>
+
+          <div class="relative animate-fade-in-right delay-300">
+            <!-- Main visual card -->
+            <div
+              class="bg-gradient-to-br from-lm-green to-lm-green-dark rounded-3xl p-8 text-white shadow-2xl glow"
+            >
+              <div class="text-center mb-8">
+                <div
+                  class="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-2xl mb-4"
+                >
+                  <i class="fas fa-chart-line text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold">Key Achievement</h3>
+              </div>
+
+              <div class="text-center">
+                <div class="text-7xl font-extrabold mb-2">15+</div>
+                <p class="text-xl opacity-90">
+                  Travel Providers Aggregated
+                </p>
+              </div>
+
+              <div class="mt-8 grid grid-cols-2 gap-4">
+                <div class="bg-white/10 rounded-xl p-4 text-center">
+                  <i class="fas fa-clock text-2xl mb-2"></i>
+                  <p class="text-sm opacity-80">Real-Time Sync</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-4 text-center">
+                  <i class="fas fa-check-double text-2xl mb-2"></i>
+                  <p class="text-sm opacity-80">99% Data Accuracy</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating mini cards -->
+            <div
+              class="absolute -top-4 -left-4 bg-white rounded-2xl p-4 shadow-xl animate-float"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="fas fa-exclamation-triangle text-teal-500"></i>
+                </div>
+                <div>
+                  <p class="text-xs text-lm-gray">Before</p>
+                  <p class="font-bold text-sm">Scattered Data</p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="absolute -bottom-4 -right-4 bg-white rounded-2xl p-4 shadow-xl animate-float delay-500"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center"
+                >
+                  <i class="fas fa-database text-lm-green"></i>
+                </div>
+                <div>
+                  <p class="text-xs text-lm-gray">After</p>
+                  <p class="font-bold text-sm">Unified Platform</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <i class="fas fa-chevron-down text-lm-green text-2xl"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Executive Summary Section -->
+    <section class="py-20 bg-white">
+      <div class="container mx-auto px-6">
+        <div class="max-w-5xl mx-auto">
+          <div class="text-center mb-12 reveal">
+            <span
+              class="inline-flex items-center gap-2 bg-lm-green/10 text-lm-green px-4 py-2 rounded-full text-sm font-medium mb-4"
+            >
+              <i class="fas fa-file-alt"></i>
+              Executive Summary
+            </span>
+            <h2 class="text-4xl font-bold text-lm-darker mb-6">
+              Project Overview
+            </h2>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-8 reveal">
+            <div class="bg-lm-light rounded-2xl p-8">
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-3">
+                <i class="fas fa-bullseye text-lm-green"></i>
+                The Challenge
+              </h3>
+              <p class="text-lm-gray leading-relaxed">
+                Travelers searching for holiday packages faced a fragmented
+                experience — visiting dozens of websites like MakeMyTrip,
+                Yatra, Goibibo, and other booking platforms, each with
+                different layouts, pricing formats, and package details.
+                Comparing options was tedious and time-consuming. The core
+                challenge was that every provider had different HTML
+                structures, anti-bot protections, inconsistent data formats,
+                and varying package metadata — making it nearly impossible to
+                get a unified view of available travel options.
+              </p>
+            </div>
+
+            <div class="bg-lm-light rounded-2xl p-8">
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-3">
+                <i class="fas fa-lightbulb text-lm-green"></i>
+                The Solution
+              </h3>
+              <p class="text-lm-gray leading-relaxed">
+                We developed Travelido — a comprehensive travel package
+                aggregation platform with an intelligent scraping pipeline
+                that extracts data from multiple providers, normalizes
+                inconsistent formats into a unified data model, stores
+                everything in a centralized database, and presents users with
+                a clean, searchable interface. The platform handles anti-bot
+                measures, parses varying HTML structures, and reconciles
+                pricing differences to deliver accurate, comparable travel
+                packages in one place.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="mt-8 bg-gradient-to-r from-lm-green/10 to-lm-green/5 rounded-2xl p-8 reveal"
+          >
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-3">
+              <i class="fas fa-trophy text-lm-green"></i>
+              The Results
+            </h3>
+            <p class="text-lm-gray leading-relaxed mb-6">
+              Travelido delivered immediate and measurable improvements for
+              travel package discovery. The platform achieved
+              <strong class="text-lm-dark"
+                >15+ providers integrated</strong
+              >, aggregating thousands of packages into a single searchable
+              database. Data ingestion time was reduced by
+              <strong class="text-lm-dark">80%</strong> through automated
+              scraping, data accuracy reached
+              <strong class="text-lm-dark">99%</strong> after normalization,
+              and users could finally
+              <strong class="text-lm-dark">compare packages side-by-side</strong>
+              from multiple providers without visiting each site individually.
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="text-center">
+                <div class="text-3xl font-bold text-lm-green">15+</div>
+                <div class="text-sm text-lm-gray">Providers</div>
+              </div>
+              <div class="text-center">
+                <div class="text-3xl font-bold text-lm-green">80%</div>
+                <div class="text-sm text-lm-gray">Faster Ingestion</div>
+              </div>
+              <div class="text-center">
+                <div class="text-3xl font-bold text-lm-green">99%</div>
+                <div class="text-sm text-lm-gray">Data Accuracy</div>
+              </div>
+              <div class="text-center">
+                <div class="text-3xl font-bold text-lm-green">10K+</div>
+                <div class="text-sm text-lm-gray">Packages Indexed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Company Background Section -->
+    <section class="py-20 bg-lm-light">
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center mb-16 reveal">
+          <span
+            class="inline-flex items-center gap-2 bg-lm-green/10 text-lm-green px-4 py-2 rounded-full text-sm font-medium mb-4"
+          >
+            <i class="fas fa-plane"></i>
+            About The Project
+          </span>
+          <h2 class="text-4xl font-bold text-lm-darker mb-6">
+            Project Background
+          </h2>
+          <p class="text-lg text-lm-gray leading-relaxed">
+            Travelido was conceived as a solution to the fragmented travel
+            package marketplace. With travelers spending hours browsing
+            multiple websites to find the best holiday deals, there was a
+            clear need for a unified platform that could aggregate, normalize,
+            and present travel packages from all major providers in one
+            searchable interface — giving users the power to compare and
+            choose without the hassle.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 mb-12">
+          <div class="bg-white rounded-2xl p-8 card-hover reveal">
+            <div
+              class="w-16 h-16 bg-lm-green/10 rounded-2xl flex items-center justify-center mb-6 icon-container"
+            >
+              <i class="fas fa-spider text-lm-green text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">
+              Intelligent Web Scraping Engine
+            </h3>
+            <p class="text-lm-gray leading-relaxed">
+              The core of Travelido is a sophisticated scraping pipeline that
+              navigates complex travel websites, handles JavaScript-rendered
+              content, bypasses anti-bot measures, and extracts structured
+              data from diverse HTML layouts. Each provider required custom
+              scraping logic due to their unique page structures, but the
+              system was designed to be modular and maintainable.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-8 card-hover reveal delay-200">
+            <div
+              class="w-16 h-16 bg-lm-green/10 rounded-2xl flex items-center justify-center mb-6 icon-container"
+            >
+              <i class="fas fa-exchange-alt text-lm-green text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">
+              Data Normalization Layer
+            </h3>
+            <p class="text-lm-gray leading-relaxed">
+              Raw scraped data comes in wildly different formats — one site
+              lists prices with taxes, another without; dates are formatted
+              differently; amenities use different naming conventions.
+              Travelido's normalization layer transforms all this chaos into
+              a consistent, unified data model that enables accurate
+              comparisons and reliable search functionality.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-8 card-hover reveal delay-400">
+            <div
+              class="w-16 h-16 bg-lm-green/10 rounded-2xl flex items-center justify-center mb-6 icon-container"
+            >
+              <i class="fas fa-search-plus text-lm-green text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">
+              Unified Search & Discovery UI
+            </h3>
+            <p class="text-lm-gray leading-relaxed">
+              The user-facing platform presents all aggregated packages
+              through a clean, intuitive interface with powerful filters —
+              by destination, price range, duration, provider, departure
+              dates, and more. Users can browse, compare, and discover travel
+              packages without ever needing to visit the original provider
+              sites until they're ready to book.
+            </p>
+          </div>
+        </div>
+
+        <!-- Additional Context -->
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl p-8 reveal">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-3">
+            <i class="fas fa-info-circle text-lm-green"></i>
+            Why Travel Data Aggregation is Complex
+          </h3>
+          <p class="text-lm-gray leading-relaxed mb-4">
+            Understanding the nature of travel data scraping is essential to
+            appreciating the technical challenges Travelido solved. Unlike
+            standardized APIs, scraping travel packages involves numerous
+            variables and obstacles:
+          </p>
+          <ul class="space-y-3 text-lm-gray">
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-lm-green mt-1"></i>
+              <span
+                ><strong>Diverse HTML structures:</strong> Every travel site
+                has a unique layout — some use server-rendered HTML, others
+                rely heavily on JavaScript frameworks like React or Angular,
+                requiring headless browser automation to extract data.</span
+              >
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-lm-green mt-1"></i>
+              <span
+                ><strong>Anti-bot protection:</strong> Major travel sites
+                employ sophisticated anti-scraping measures including
+                CAPTCHAs, rate limiting, fingerprinting, and IP blocking —
+                requiring careful request management and proxy rotation.</span
+              >
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-lm-green mt-1"></i>
+              <span
+                ><strong>Inconsistent data formats:</strong> Pricing might
+                include or exclude taxes; dates use different formats;
+                package inclusions are described with varying terminology;
+                images and descriptions have different structures.</span
+              >
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-lm-green mt-1"></i>
+              <span
+                ><strong>Frequent layout changes:</strong> Travel websites
+                frequently update their UI, breaking existing scraping logic
+                and requiring constant maintenance and monitoring to ensure
+                data quality.</span
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problems Section -->
+    <section class="py-20 bg-white">
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center mb-16 reveal">
+          <span
+            class="inline-flex items-center gap-2 bg-teal-100 text-teal-600 px-4 py-2 rounded-full text-sm font-medium mb-4"
+          >
+            <i class="fas fa-exclamation-triangle"></i>
+            Challenges Faced
+          </span>
+          <h2 class="text-4xl font-bold text-lm-darker mb-6">The Problems</h2>
+          <p class="text-lg text-lm-gray leading-relaxed">
+            Building Travelido required solving seven critical technical and
+            data challenges that stood between raw travel website content and
+            a unified, user-friendly aggregation platform. These interconnected
+            problems required innovative solutions at every layer of the stack.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <!-- Problem Cards with expanded content -->
+          <div
+            class="problem-card bg-lm-light rounded-2xl p-6 card-hover reveal"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="w-14 h-14 bg-pink-100 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fas fa-code text-pink-500 text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg mb-3">
+                  1. Vastly Different HTML Structures Across Providers
+                </h4>
+                <p class="text-sm text-lm-gray leading-relaxed mb-3">
+                  Every travel provider — MakeMyTrip, Yatra, Goibibo,
+                  Cleartrip, and others — structures their package listings
+                  completely differently. Some use server-rendered HTML,
+                  others load data via AJAX; some have structured data
+                  attributes, others embed information in unstructured text
+                  blocks. Class names, element hierarchies, and data
+                  locations vary wildly.
+                </p>
+                <p class="text-sm text-lm-gray leading-relaxed">
+                  <strong class="text-pink-600">Impact:</strong> A single
+                  scraping approach couldn't work across all sites. Each
+                  provider required custom parsing logic, significantly
+                  increasing development and maintenance complexity while
+                  risking data extraction failures when layouts changed.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="problem-card bg-lm-light rounded-2xl p-6 card-hover reveal delay-100"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="w-14 h-14 bg-teal-100 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fas fa-shield-alt text-teal-500 text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg mb-3">
+                  2. Anti-Bot Protection & Rate Limiting
+                </h4>
+                <p class="text-sm text-lm-gray leading-relaxed mb-3">
+                  Major travel booking sites employ aggressive anti-scraping
+                  measures: CAPTCHAs, browser fingerprinting, JavaScript
+                  challenges, request rate limiting, and IP-based blocking.
+                  Some sites detect headless browsers, others analyze request
+                  patterns to identify automated access.
+                </p>
+                <p class="text-sm text-lm-gray leading-relaxed">
+                  <strong class="text-teal-600">Impact:</strong> Naive
+                  scraping approaches were blocked within minutes. The system
+                  needed sophisticated techniques including proxy rotation,
+                  realistic request timing, header spoofing, and CAPTCHA
+                  handling to maintain reliable data access.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="problem-card bg-lm-light rounded-2xl p-6 card-hover reveal delay-200"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="w-14 h-14 bg-pink-100 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fas fa-tags text-pink-600 text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg mb-3">
+                  3. Inconsistent Package Metadata & Naming Conventions
+                </h4>
+                <p class="text-sm text-lm-gray leading-relaxed mb-3">
+                  Package attributes used different terminology across
+                  providers: "3N/4D" vs "4 Days 3 Nights" vs "3 nights";
+                  "Meals included" vs "MAP" vs "Breakfast & Dinner";
+                  "Sightseeing" vs "Local Tours" vs "Excursions". Destinations
+                  might be listed as "Goa" or "North Goa" or "Calangute, Goa"
+                  — all referring to similar locations.
+                </p>
+                <p class="text-sm text-lm-gray leading-relaxed">
+                  <strong class="text-pink-600">Impact:</strong> Without
+                  normalization, search and filtering would be unreliable.
+                  Users searching for "Goa packages with breakfast" might miss
+                  relevant results due to naming inconsistencies.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="problem-card bg-lm-light rounded-2xl p-6 card-hover reveal delay-300"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="w-14 h-14 bg-teal-100 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fas fa-rupee-sign text-teal-600 text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg mb-3">
+                  4. Pricing Inconsistencies & Hidden Costs
+                </h4>
+                <p class="text-sm text-lm-gray leading-relaxed mb-3">
+                  Pricing structures varied dramatically: some showed
+                  per-person prices, others total package cost; some included
+                  GST, others showed pre-tax rates; some listed "starting
+                  from" prices that increased with options. Currency formats,
+                  discount representations, and price breakdowns differed
+                  across every provider.
+                </p>
+                <p class="text-sm text-lm-gray leading-relaxed">
+                  <strong class="text-teal-600">Impact:</strong> Direct
+                  price comparisons were misleading without careful
+                  normalization. Users could be shown a "cheaper" package that
+                  actually cost more once all fees were included, damaging
+                  trust in the platform.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="problem-card bg-lm-light rounded-2xl p-6 card-hover reveal delay-400"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="w-14 h-14 bg-pink-100 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fas fa-sync text-pink-500 text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg mb-3">
+                  5. Frequent Website Layout Changes
+                </h4>
+                <p class="text-sm text-lm-gray leading-relaxed mb-3">
+                  Travel websites frequently update their UI/UX — new
+                  promotional layouts, A/B testing variations, redesigns for
+                  seasonal campaigns, or complete platform overhauls.
+                  Each change could break existing scraping selectors,
+                  causing data extraction failures or corrupted data.
+                </p>
+                <p class="text-sm text-lm-gray leading-relaxed">
+                  <strong class="text-pink-600">Impact:</strong> Without
+                  robust monitoring and rapid response capabilities, the
+                  system could go hours or days with missing or incorrect
+                  data before issues were detected, degrading user trust and
+                  platform reliability.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="problem-card bg-lm-light rounded-2xl p-6 card-hover reveal delay-500"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="w-14 h-14 bg-teal-100 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fas fa-clone text-teal-500 text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg mb-3">
+                  6. Duplicate & Overlapping Package Detection
+                </h4>
+                <p class="text-sm text-lm-gray leading-relaxed mb-3">
+                  The same package could appear on multiple providers with
+                  slight variations in description, pricing, or images.
+                  Additionally, very similar packages (same hotel, same
+                  duration, slightly different inclusions) needed to be
+                  intelligently grouped without being falsely marked as
+                  duplicates.
+                </p>
+                <p class="text-sm text-lm-gray leading-relaxed">
+                  <strong class="text-teal-600">Impact:</strong> Without
+                  proper deduplication, users would see repetitive results
+                  cluttering search results, while aggressive deduplication
+                  could hide legitimately different package options.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="problem-card bg-lm-light rounded-2xl p-6 card-hover reveal delay-600 md:col-span-2"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="w-14 h-14 bg-pink-100 rounded-xl flex items-center justify-center shrink-0"
+              >
+                <i class="fas fa-tachometer-alt text-pink-600 text-2xl"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg mb-3">
+                  7. Scale & Performance — Processing Thousands of Packages
+                </h4>
+                <p class="text-sm text-lm-gray leading-relaxed mb-3">
+                  Scraping, parsing, normalizing, and storing data from 15+
+                  providers with thousands of packages each required
+                  significant computational resources. The system needed to
+                  run frequent updates to keep data fresh while respecting
+                  rate limits and managing costs.
+                </p>
+                <p class="text-sm text-lm-gray leading-relaxed">
+                  <strong class="text-pink-600">Impact:</strong> Without
+                  careful architecture, the pipeline could become a
+                  bottleneck — too slow to keep data current, too expensive
+                  to run at scale, or too fragile to handle failures
+                  gracefully. The platform needed to balance freshness,
+                  accuracy, and operational efficiency.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section
+      class="py-20 bg-gradient-to-b from-lm-darker to-lm-dark text-white"
+    >
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center mb-16 reveal">
+          <span
+            class="inline-flex items-center gap-2 bg-lm-green/20 text-lm-green px-4 py-2 rounded-full text-sm font-medium mb-4"
+          >
+            <i class="fas fa-lightbulb"></i>
+            Our Solution
+          </span>
+          <h2 class="text-4xl font-bold mb-6">
+            Unified Travel Package Aggregation Platform
+          </h2>
+          <p class="text-lg text-white/70 leading-relaxed">
+            We designed and built a comprehensive scraping and aggregation
+            system specifically engineered for the complexities of travel
+            data. This integrated platform combines intelligent web scraping,
+            robust data normalization, a centralized database, and a
+            user-friendly search interface — transforming fragmented travel
+            listings into a single, powerful discovery tool.
+          </p>
+        </div>
+
+        <!-- Solution Features Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            class="solution-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 card-hover reveal"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green rounded-xl flex items-center justify-center mb-5"
+            >
+              <i class="fas fa-spider text-white text-xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-3">
+              Modular Scraping Architecture
+            </h4>
+            <p class="text-white/60 text-sm mb-4 leading-relaxed">
+              Each travel provider has a dedicated scraper module with
+              custom parsing logic tailored to its specific HTML structure.
+              The modular design allows individual scrapers to be updated
+              or replaced without affecting others. Headless browser
+              automation handles JavaScript-heavy sites while lighter HTTP
+              requests work for server-rendered pages.
+            </p>
+            <div class="flex items-center gap-2 text-lm-green text-xs">
+              <i class="fas fa-check-circle"></i>
+              <span>Solves: Different HTML Structures</span>
+            </div>
+          </div>
+
+          <div
+            class="solution-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 card-hover reveal delay-100"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green rounded-xl flex items-center justify-center mb-5"
+            >
+              <i class="fas fa-user-secret text-white text-xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-3">
+              Anti-Detection & Proxy Management
+            </h4>
+            <p class="text-white/60 text-sm mb-4 leading-relaxed">
+              The system employs rotating residential proxies, realistic
+              request timing with randomized delays, proper header rotation,
+              and browser fingerprint randomization. For sites with
+              CAPTCHAs, we integrated solving services. Rate limiting is
+              carefully managed per-provider to avoid triggering blocks
+              while maintaining data freshness.
+            </p>
+            <div class="flex items-center gap-2 text-lm-green text-xs">
+              <i class="fas fa-check-circle"></i>
+              <span>Solves: Anti-Bot Protection</span>
+            </div>
+          </div>
+
+          <div
+            class="solution-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 card-hover reveal delay-200"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green rounded-xl flex items-center justify-center mb-5"
+            >
+              <i class="fas fa-database text-white text-xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-3">
+              Unified Data Model & Schema
+            </h4>
+            <p class="text-white/60 text-sm mb-4 leading-relaxed">
+              All scraped data is transformed into a consistent schema:
+              standardized destination naming (with location hierarchies),
+              normalized duration formats, unified amenity/inclusion
+              taxonomies, and consistent date/time handling. This enables
+              reliable cross-provider comparisons and accurate search
+              functionality.
+            </p>
+            <div class="flex items-center gap-2 text-lm-green text-xs">
+              <i class="fas fa-check-circle"></i>
+              <span>Solves: Inconsistent Metadata</span>
+            </div>
+          </div>
+
+          <div
+            class="solution-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 card-hover reveal delay-300"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green rounded-xl flex items-center justify-center mb-5"
+            >
+              <i class="fas fa-rupee-sign text-white text-xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-3">
+              Price Normalization Engine
+            </h4>
+            <p class="text-white/60 text-sm mb-4 leading-relaxed">
+              Prices are standardized to a common format: per-person rates,
+              inclusive of taxes, with clear breakdowns of what's included.
+              The system detects and handles "starting from" prices,
+              identifies hidden fees, and presents users with comparable
+              total costs so they can make informed decisions.
+            </p>
+            <div class="flex items-center gap-2 text-lm-green text-xs">
+              <i class="fas fa-check-circle"></i>
+              <span>Solves: Pricing Inconsistencies</span>
+            </div>
+          </div>
+
+          <div
+            class="solution-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 card-hover reveal delay-400"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green rounded-xl flex items-center justify-center mb-5"
+            >
+              <i class="fas fa-bell text-white text-xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-3">
+              Change Detection & Alerting
+            </h4>
+            <p class="text-white/60 text-sm mb-4 leading-relaxed">
+              Automated monitoring detects when scraping success rates drop
+              or data patterns change unexpectedly — indicating potential
+              website layout changes. Alerts notify the team immediately,
+              and the system can fall back to cached data while issues are
+              resolved, ensuring users always have access to recent data.
+            </p>
+            <div class="flex items-center gap-2 text-lm-green text-xs">
+              <i class="fas fa-check-circle"></i>
+              <span>Solves: Frequent Layout Changes</span>
+            </div>
+          </div>
+
+          <div
+            class="solution-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 card-hover reveal delay-500"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green rounded-xl flex items-center justify-center mb-5"
+            >
+              <i class="fas fa-fingerprint text-white text-xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-3">
+              Intelligent Deduplication
+            </h4>
+            <p class="text-white/60 text-sm mb-4 leading-relaxed">
+              A fuzzy matching algorithm identifies duplicate and
+              near-duplicate packages across providers using destination,
+              hotel, duration, and inclusion similarity. True duplicates
+              are consolidated while similar-but-different packages are
+              grouped for easy comparison, giving users clarity without
+              losing legitimate options.
+            </p>
+            <div class="flex items-center gap-2 text-lm-green text-xs">
+              <i class="fas fa-check-circle"></i>
+              <span>Solves: Duplicate Detection</span>
+            </div>
+          </div>
+
+          <div
+            class="solution-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 card-hover reveal delay-600"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green rounded-xl flex items-center justify-center mb-5"
+            >
+              <i class="fas fa-clock text-white text-xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-3">
+              Scheduled & Incremental Updates
+            </h4>
+            <p class="text-white/60 text-sm mb-4 leading-relaxed">
+              The scraping pipeline runs on intelligent schedules — more
+              frequent updates for popular destinations and providers,
+              with incremental scraping that only processes changed
+              listings. This balances data freshness against operational
+              costs and respects provider rate limits.
+            </p>
+            <div class="flex items-center gap-2 text-lm-green text-xs">
+              <i class="fas fa-check-circle"></i>
+              <span>Solves: Scale & Performance</span>
+            </div>
+          </div>
+
+          <div
+            class="solution-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 card-hover reveal delay-700"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green rounded-xl flex items-center justify-center mb-5"
+            >
+              <i class="fas fa-search text-white text-xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-3">
+              Powerful Search & Filter Interface
+            </h4>
+            <p class="text-white/60 text-sm mb-4 leading-relaxed">
+              The user-facing platform offers comprehensive search
+              capabilities: filter by destination, date range, budget,
+              duration, provider, inclusions, and more. Results display
+              normalized data with clear provider attribution, making it
+              easy to compare options and find the perfect package.
+            </p>
+            <div class="flex items-center gap-2 text-lm-green text-xs">
+              <i class="fas fa-check-circle"></i>
+              <span>Solves: User Discovery Experience</span>
+            </div>
+          </div>
+
+          <div
+            class="solution-card bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 card-hover reveal delay-800"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green rounded-xl flex items-center justify-center mb-5"
+            >
+              <i class="fas fa-chart-bar text-white text-xl"></i>
+            </div>
+            <h4 class="font-bold text-lg mb-3">
+              Analytics & Data Quality Dashboard
+            </h4>
+            <p class="text-white/60 text-sm mb-4 leading-relaxed">
+              An internal dashboard tracks scraping success rates, data
+              quality metrics, provider coverage, and pipeline health.
+              This visibility enables proactive maintenance, quick issue
+              identification, and data-driven decisions about which
+              providers to prioritize or add to the platform.
+            </p>
+            <div class="flex items-center gap-2 text-lm-green text-xs">
+              <i class="fas fa-check-circle"></i>
+              <span>Solves: Operational Visibility</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section class="py-20 bg-lm-light overflow-hidden">
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center mb-16 reveal">
+          <span
+            class="inline-flex items-center gap-2 bg-lm-green/10 text-lm-green px-4 py-2 rounded-full text-sm font-medium mb-4"
+          >
+            <i class="fas fa-stream"></i>
+            The Pipeline
+          </span>
+          <h2 class="text-4xl font-bold text-lm-darker mb-6">
+            Data Aggregation Workflow
+          </h2>
+          <p class="text-lg text-lm-gray leading-relaxed">
+            From raw HTML on travel websites to clean, searchable package
+            listings — every step is automated, monitored, and optimized.
+            Here's how data flows through the Travelido platform:
+          </p>
+        </div>
+
+        <!-- Workflow Steps -->
+        <div class="relative">
+          <!-- Connection line -->
+          <div
+            class="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-pink-200 via-lm-green to-pink-200 -translate-y-1/2 hidden lg:block"
+          ></div>
+
+          <div class="grid grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+            <div class="text-center relative reveal">
+              <div
+                class="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4 relative z-10"
+              >
+                <i class="fas fa-spider text-lm-green text-2xl"></i>
+              </div>
+              <div
+                class="absolute top-10 left-1/2 -translate-x-1/2 w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm z-20"
+              >
+                1
+              </div>
+              <h4 class="font-bold mb-2">Scrape</h4>
+              <p class="text-sm text-lm-gray">
+                Automated crawlers extract package data from provider websites
+              </p>
+            </div>
+
+            <div class="text-center relative reveal delay-100">
+              <div
+                class="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4 relative z-10"
+              >
+                <i class="fas fa-code text-lm-green text-2xl"></i>
+              </div>
+              <div
+                class="absolute top-10 left-1/2 -translate-x-1/2 w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm z-20"
+              >
+                2
+              </div>
+              <h4 class="font-bold mb-2">Parse</h4>
+              <p class="text-sm text-lm-gray">
+                Raw HTML transformed into structured data objects
+              </p>
+            </div>
+
+            <div class="text-center relative reveal delay-200">
+              <div
+                class="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4 relative z-10"
+              >
+                <i class="fas fa-exchange-alt text-lm-green text-2xl"></i>
+              </div>
+              <div
+                class="absolute top-10 left-1/2 -translate-x-1/2 w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm z-20"
+              >
+                3
+              </div>
+              <h4 class="font-bold mb-2">Normalize</h4>
+              <p class="text-sm text-lm-gray">
+                Data standardized to unified schema with consistent formats
+              </p>
+            </div>
+
+            <div class="text-center relative reveal delay-300">
+              <div
+                class="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4 relative z-10"
+              >
+                <i class="fas fa-database text-lm-green text-2xl"></i>
+              </div>
+              <div
+                class="absolute top-10 left-1/2 -translate-x-1/2 w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm z-20"
+              >
+                4
+              </div>
+              <h4 class="font-bold mb-2">Store</h4>
+              <p class="text-sm text-lm-gray">
+                Deduplicated packages indexed in centralized database
+              </p>
+            </div>
+
+            <div class="text-center relative reveal delay-400">
+              <div
+                class="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4 relative z-10"
+              >
+                <i class="fas fa-search text-lm-green text-2xl"></i>
+              </div>
+              <div
+                class="absolute top-10 left-1/2 -translate-x-1/2 w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm z-20"
+              >
+                5
+              </div>
+              <h4 class="font-bold mb-2">Serve</h4>
+              <p class="text-sm text-lm-gray">
+                Clean, comparable packages displayed via search UI
+              </p>
+            </div>
+          </div>
+
+          <!-- Detailed workflow description -->
+          <div class="max-w-4xl mx-auto bg-white rounded-2xl p-8 reveal">
+            <h3 class="text-xl font-bold mb-6 text-center">
+              How Each Stage Works
+            </h3>
+            <div class="space-y-6">
+              <div class="flex gap-4">
+                <div
+                  class="w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
+                >
+                  1
+                </div>
+                <div>
+                  <h4 class="font-bold mb-1">Intelligent Web Scraping</h4>
+                  <p class="text-sm text-lm-gray">
+                    Scheduled jobs trigger provider-specific scrapers that
+                    navigate to package listing pages. The system handles
+                    JavaScript rendering where needed, rotates through proxy
+                    pools to avoid detection, and manages rate limiting to
+                    stay within acceptable bounds. Each scraper captures raw
+                    HTML and extracts key data points using CSS selectors
+                    and XPath queries tailored to that provider's structure.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div
+                  class="w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
+                >
+                  2
+                </div>
+                <div>
+                  <h4 class="font-bold mb-1">Data Parsing & Extraction</h4>
+                  <p class="text-sm text-lm-gray">
+                    Raw HTML is processed through provider-specific parsers
+                    that understand each site's unique structure. Package
+                    titles, descriptions, prices, durations, inclusions,
+                    images, and booking URLs are extracted into structured
+                    objects. Error handling ensures partial failures don't
+                    crash the entire pipeline, and validation catches
+                    malformed data before it enters the system.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div
+                  class="w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
+                >
+                  3
+                </div>
+                <div>
+                  <h4 class="font-bold mb-1">Normalization & Standardization</h4>
+                  <p class="text-sm text-lm-gray">
+                    Parsed data passes through the normalization layer where
+                    destinations are mapped to a standard location taxonomy,
+                    durations are converted to a consistent format, prices
+                    are standardized (per-person, inclusive of taxes), and
+                    amenities/inclusions are categorized using a unified
+                    vocabulary. This ensures apples-to-apples comparisons
+                    across all providers.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div
+                  class="w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
+                >
+                  4
+                </div>
+                <div>
+                  <h4 class="font-bold mb-1">
+                    Deduplication & Database Storage
+                  </h4>
+                  <p class="text-sm text-lm-gray">
+                    Before storage, packages are checked against existing
+                    records using fuzzy matching algorithms. True duplicates
+                    are updated rather than duplicated, similar packages
+                    are linked for grouping, and new packages are inserted.
+                    The database maintains full history, enabling trend
+                    analysis and price tracking over time. Indexes optimize
+                    for common search queries.
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div
+                  class="w-8 h-8 bg-lm-green rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
+                >
+                  5
+                </div>
+                <div>
+                  <h4 class="font-bold mb-1">
+                    Search Interface & User Experience
+                  </h4>
+                  <p class="text-sm text-lm-gray">
+                    The frontend provides a clean, fast search experience.
+                    Users can filter by any normalized attribute, sort by
+                    price or relevance, and view detailed package
+                    information with clear provider attribution. Direct
+                    links to the original provider site enable booking
+                    when users find their ideal package. The UI updates
+                    as new data flows in from the pipeline.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="py-20 bg-white">
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center mb-16 reveal">
+          <span
+            class="inline-flex items-center gap-2 bg-lm-green/10 text-lm-green px-4 py-2 rounded-full text-sm font-medium mb-4"
+          >
+            <i class="fas fa-trophy"></i>
+            The Results
+          </span>
+          <h2 class="text-4xl font-bold text-lm-darker mb-6">
+            Measurable Impact & Platform Success
+          </h2>
+          <p class="text-lg text-lm-gray leading-relaxed">
+            The Travelido platform delivered significant improvements in
+            travel package discovery and comparison. Here are the key
+            outcomes and technical achievements realized through this
+            aggregation solution:
+          </p>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid md:grid-cols-4 gap-8 mb-16">
+          <div class="text-center reveal">
+            <div
+              class="metric-circle w-32 h-32 bg-gradient-to-br from-lm-green to-lm-green-dark rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <span class="text-4xl font-extrabold text-white">15+</span>
+            </div>
+            <h4 class="font-bold text-lg mb-2">Providers Integrated</h4>
+            <p class="text-sm text-lm-gray">
+              Major travel sites aggregated into one platform
+            </p>
+          </div>
+
+          <div class="text-center reveal delay-200">
+            <div
+              class="metric-circle w-32 h-32 bg-gradient-to-br from-lm-green to-lm-green-dark rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <span class="text-4xl font-extrabold text-white">80%</span>
+            </div>
+            <h4 class="font-bold text-lg mb-2">Faster Ingestion</h4>
+            <p class="text-sm text-lm-gray">
+              Automated scraping vs manual data collection
+            </p>
+          </div>
+
+          <div class="text-center reveal delay-400">
+            <div
+              class="metric-circle w-32 h-32 bg-gradient-to-br from-lm-green to-lm-green-dark rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <span class="text-4xl font-extrabold text-white">99%</span>
+            </div>
+            <h4 class="font-bold text-lg mb-2">Data Accuracy</h4>
+            <p class="text-sm text-lm-gray">
+              After normalization and validation
+            </p>
+          </div>
+
+          <div class="text-center reveal delay-600">
+            <div
+              class="metric-circle w-32 h-32 bg-gradient-to-br from-lm-green to-lm-green-dark rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <span class="text-4xl font-extrabold text-white">10K+</span>
+            </div>
+            <h4 class="font-bold text-lg mb-2">Packages Indexed</h4>
+            <p class="text-sm text-lm-gray">
+              Searchable travel packages in database
+            </p>
+          </div>
+        </div>
+
+        <!-- Detailed Benefits Grid -->
+        <div class="grid md:grid-cols-2 gap-6 mb-12">
+          <div
+            class="flex items-start gap-4 bg-lm-light rounded-2xl p-6 card-hover reveal"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green/10 rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fas fa-globe-americas text-lm-green text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold mb-2">
+                Comprehensive Provider Coverage — 15+ Sites Aggregated
+              </h4>
+              <p class="text-sm text-lm-gray leading-relaxed">
+                The platform successfully integrated data from major travel
+                providers including MakeMyTrip, Yatra, Goibibo, Cleartrip,
+                and numerous others. Users can now discover packages from
+                all these sources without visiting each site individually,
+                saving hours of comparison shopping and ensuring they don't
+                miss deals from any major provider.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex items-start gap-4 bg-lm-light rounded-2xl p-6 card-hover reveal delay-100"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green/10 rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fas fa-check-double text-lm-green text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold mb-2">
+                High Data Quality — 99% Accuracy After Normalization
+              </h4>
+              <p class="text-sm text-lm-gray leading-relaxed">
+                Through rigorous parsing, validation, and normalization,
+                the platform achieves 99% data accuracy. Prices are
+                reliably comparable, destinations are correctly categorized,
+                and package details are consistently formatted. Users can
+                trust the information they see and make confident decisions.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex items-start gap-4 bg-lm-light rounded-2xl p-6 card-hover reveal delay-200"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green/10 rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fas fa-bolt text-lm-green text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold mb-2">
+                Rapid Data Ingestion — 80% Faster Than Manual Collection
+              </h4>
+              <p class="text-sm text-lm-gray leading-relaxed">
+                The automated scraping pipeline processes thousands of
+                packages across all providers in a fraction of the time
+                manual data collection would require. This enables
+                frequent updates to keep data fresh, ensuring users see
+                current pricing and availability rather than stale listings.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex items-start gap-4 bg-lm-light rounded-2xl p-6 card-hover reveal delay-300"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green/10 rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fas fa-balance-scale text-lm-green text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold mb-2">
+                True Price Comparison — Normalized Pricing Across Providers
+              </h4>
+              <p class="text-sm text-lm-gray leading-relaxed">
+                With standardized pricing (per-person, tax-inclusive),
+                users can finally make accurate comparisons. No more
+                surprises from hidden fees or confusing pricing structures.
+                The platform shows what packages actually cost, enabling
+                informed decisions based on true value.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex items-start gap-4 bg-lm-light rounded-2xl p-6 card-hover reveal delay-400"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green/10 rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fas fa-shield-alt text-lm-green text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold mb-2">
+                Resilient Scraping — Robust Anti-Bot Handling
+              </h4>
+              <p class="text-sm text-lm-gray leading-relaxed">
+                The sophisticated scraping infrastructure maintains
+                consistent access to all providers despite their
+                anti-bot measures. Proxy rotation, request timing
+                management, and detection avoidance techniques ensure
+                reliable data extraction without service interruptions.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex items-start gap-4 bg-lm-light rounded-2xl p-6 card-hover reveal delay-500"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green/10 rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fas fa-filter text-lm-green text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold mb-2">
+                Powerful Discovery — Rich Filtering & Search
+              </h4>
+              <p class="text-sm text-lm-gray leading-relaxed">
+                Users can filter packages by destination, budget, duration,
+                travel dates, inclusions, and provider. The normalized
+                data enables filters to work reliably across all sources,
+                helping users quickly narrow down thousands of options to
+                find exactly what they're looking for.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex items-start gap-4 bg-lm-light rounded-2xl p-6 card-hover reveal delay-600 md:col-span-2"
+          >
+            <div
+              class="w-14 h-14 bg-lm-green/10 rounded-xl flex items-center justify-center shrink-0"
+            >
+              <i class="fas fa-expand-alt text-lm-green text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold mb-2">
+                Scalable Architecture — Ready for Growth
+              </h4>
+              <p class="text-sm text-lm-gray leading-relaxed">
+                The modular pipeline architecture makes it straightforward
+                to add new providers — each new scraper plugs into the
+                existing normalization and storage infrastructure. As the
+                travel market evolves and new providers emerge, Travelido
+                can expand coverage without fundamental architectural
+                changes, ensuring the platform remains comprehensive and
+                competitive.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonial / Quote Section -->
+    <section
+      class="py-20 bg-gradient-to-br from-lm-green to-lm-green-dark text-white"
+    >
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center reveal">
+          <i class="fas fa-quote-left text-5xl opacity-30 mb-8"></i>
+          <blockquote
+            class="text-2xl lg:text-3xl font-medium leading-relaxed mb-8"
+          >
+            "Travelido transformed fragmented travel data from dozens of
+            providers into a
+            <span class="font-bold"
+              >unified, searchable, reliable aggregation platform</span
+            >
+            — enabling travelers to discover and compare holiday packages
+            with confidence. What once required visiting 15+ websites and
+            hours of manual comparison can now be done in minutes on a
+            single platform with accurate, normalized data."
+          </blockquote>
+          <div class="flex items-center justify-center gap-4">
+            <div
+              class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center"
+            >
+              <i class="fas fa-plane-departure text-2xl"></i>
+            </div>
+            <div class="text-left">
+              <p class="font-bold text-lg">Travelido</p>
+              <p class="opacity-80">Travel Package Aggregation Platform</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why This Matters Section -->
+    <section class="py-20 bg-lm-light">
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center mb-16 reveal">
+          <span
+            class="inline-flex items-center gap-2 bg-lm-green/10 text-lm-green px-4 py-2 rounded-full text-sm font-medium mb-4"
+          >
+            <i class="fas fa-cog"></i>
+            Technical Context
+          </span>
+          <h2 class="text-4xl font-bold text-lm-darker mb-6">
+            Why Travel Data Aggregation Matters
+          </h2>
+          <p class="text-lg text-lm-gray leading-relaxed">
+            Travel package aggregation is one of the most challenging data
+            engineering problems — but with the right architecture, it
+            unlocks enormous value for travelers. Understanding these
+            domain-specific challenges explains why Travelido was built
+            the way it was.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div class="bg-white rounded-2xl p-6 text-center card-hover reveal">
+            <div
+              class="w-16 h-16 bg-lm-green/10 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fas fa-sitemap text-lm-green text-2xl"></i>
+            </div>
+            <h4 class="font-bold mb-2">Fragmented Marketplace</h4>
+            <p class="text-sm text-lm-gray leading-relaxed">
+              Travel packages are scattered across dozens of providers,
+              each with their own website, format, and pricing model.
+              Travelers waste hours visiting multiple sites to compare
+              options that should be viewable side-by-side.
+            </p>
+          </div>
+
+          <div
+            class="bg-white rounded-2xl p-6 text-center card-hover reveal delay-100"
+          >
+            <div
+              class="w-16 h-16 bg-lm-green/10 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fas fa-random text-lm-green text-2xl"></i>
+            </div>
+            <h4 class="font-bold mb-2">Inconsistent Information</h4>
+            <p class="text-sm text-lm-gray leading-relaxed">
+              Every provider describes packages differently — varying
+              terminology for inclusions, different pricing structures,
+              inconsistent date formats. Without normalization, meaningful
+              comparison is nearly impossible.
+            </p>
+          </div>
+
+          <div
+            class="bg-white rounded-2xl p-6 text-center card-hover reveal delay-200"
+          >
+            <div
+              class="w-16 h-16 bg-lm-green/10 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fas fa-clock text-lm-green text-2xl"></i>
+            </div>
+            <h4 class="font-bold mb-2">Time-Sensitive Deals</h4>
+            <p class="text-sm text-lm-gray leading-relaxed">
+              Travel pricing is dynamic — deals come and go, prices
+              fluctuate based on demand. A platform that can aggregate
+              and update data quickly helps travelers catch the best
+              offers before they disappear.
+            </p>
+          </div>
+
+          <div
+            class="bg-white rounded-2xl p-6 text-center card-hover reveal delay-300"
+          >
+            <div
+              class="w-16 h-16 bg-lm-green/10 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fas fa-user-check text-lm-green text-2xl"></i>
+            </div>
+            <h4 class="font-bold mb-2">Trust & Transparency</h4>
+            <p class="text-sm text-lm-gray leading-relaxed">
+              Travelers need confidence that they're seeing accurate,
+              complete information. A well-built aggregation platform
+              with clear provider attribution and normalized data builds
+              trust and enables informed decisions.
+            </p>
+          </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl p-8 reveal">
+          <h3 class="text-xl font-bold mb-4 text-center">
+            The Strategic Value of Data Aggregation
+          </h3>
+          <p class="text-lm-gray leading-relaxed mb-4">
+            For the travel industry, platforms like Travelido that aggregate
+            and normalize data from multiple sources provide enormous value:
+          </p>
+          <ul class="space-y-3 text-lm-gray">
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-lm-green mt-1"></i>
+              <span
+                ><strong>Time savings for travelers:</strong> Compare dozens
+                of providers in minutes instead of hours of manual browsing.</span
+              >
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-lm-green mt-1"></i>
+              <span
+                ><strong>Better decisions:</strong> Normalized data enables
+                true apples-to-apples comparison based on price, inclusions,
+                and value.</span
+              >
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-lm-green mt-1"></i>
+              <span
+                ><strong>Discovery of options:</strong> Users find packages
+                from providers they might never have visited directly,
+                expanding their choices.</span
+              >
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-lm-green mt-1"></i>
+              <span
+                ><strong>Market transparency:</strong> Aggregation creates
+                visibility into pricing and offerings across the entire
+                market, benefiting both travelers and providers.</span
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-lm-darker text-white">
+      <div class="container mx-auto px-6">
+        <div
+          class="flex flex-col md:flex-row justify-between items-center gap-6"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 bg-lm-green rounded-xl flex items-center justify-center"
+            >
+              <i class="fas fa-plane-departure text-white"></i>
+            </div>
+            <div>
+              <p class="font-bold">Travelido</p>
+              <p class="text-sm text-white/60">
+                Travel Aggregation Platform Case Study
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-6 text-white/60">
+            <span class="flex items-center gap-2">
+              <i class="fas fa-globe"></i>
+              <span>Travel Package Aggregation</span>
+            </span>
+          </div>
+
+          <div class="text-center md:text-right text-sm text-white/40">
+            <p>Case Study Prepared by Gopal Swami (Sifars)</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scroll Animation Script -->
+    <script>
+      // Reveal on scroll
+      function reveal() {
+        const reveals = document.querySelectorAll(".reveal");
+
+        reveals.forEach((element) => {
+          const windowHeight = window.innerHeight;
+          const elementTop = element.getBoundingClientRect().top;
+          const elementVisible = 150;
+
+          if (elementTop < windowHeight - elementVisible) {
+            element.classList.add("active");
+          }
+        });
+      }
+
+      window.addEventListener("scroll", reveal);
+      window.addEventListener("load", reveal);
+
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
+          });
+        });
+      });
+
+      // Counter animation for stats
+      function animateValue(element, start, end, duration, suffix = "") {
+        const range = end - start;
+        const increment = end > start ? 1 : -1;
+        const stepTime = Math.abs(Math.floor(duration / range));
+        let current = start;
+
+        const timer = setInterval(() => {
+          current += increment;
+          element.textContent = current + suffix;
+          if (current === end) {
+            clearInterval(timer);
+          }
+        }, stepTime);
+      }
+
+      // Intersection Observer for counter animation
+      const observerOptions = {
+        threshold: 0.5,
+      };
+
+      const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const counters = entry.target.querySelectorAll(
+              ".metric-circle span"
+            );
+            counters.forEach((counter) => {
+              const text = counter.textContent;
+              if (text.includes("+")) {
+                const value = parseInt(text);
+                counter.textContent = "0+";
+                animateValue(counter, 0, value, 1500, "+");
+              } else if (text.includes("%")) {
+                const value = parseInt(text);
+                counter.textContent = "0%";
+                animateValue(counter, 0, value, 1500, "%");
+              } else if (text.includes("K")) {
+                const value = parseInt(text);
+                counter.textContent = "0K+";
+                animateValue(counter, 0, value, 1500, "K+");
+              }
+            });
+            counterObserver.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      const resultsSection = document.querySelector("#results");
+      if (resultsSection) {
+        counterObserver.observe(resultsSection);
+      }
+    </script>
+  </body>
+</html>
